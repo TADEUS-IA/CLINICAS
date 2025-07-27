@@ -22,6 +22,7 @@ html, body {
 
 body { display: flex; justify-content: center; align-items: center; }
 
+/* Container Principal Redimensionado */
 .interaction-container {
     width: 95vw;
     height: 90vh;
@@ -42,6 +43,7 @@ body { display: flex; justify-content: center; align-items: center; }
     opacity: 1;
 }
 
+/* Transição Suave de Imagem (Cross-fade) */
 .media-container {
     position: relative;
     flex: 1;
@@ -70,6 +72,7 @@ body { display: flex; justify-content: center; align-items: center; }
     pointer-events: none;
 }
 
+/* Controles (Voltar e Áudio) */
 .control-button {
     position: absolute; top: 20px;
     background: rgba(0, 0, 0, 0.4);
@@ -91,9 +94,11 @@ body { display: flex; justify-content: center; align-items: center; }
     font-weight: 600;
 }
 
+/* Fase 1: Coleta de Dados Guiada */
 .message-container {
     position: absolute;
-    bottom: 200px; /* CORRIGIDO: Posição ajustada para não sobrepor o input */
+    /* ALTERADO: Aumentei o valor para levantar a mensagem e evitar sobreposição. */
+    bottom: 200px; 
     left: 25px; right: 25px;
     z-index: 20;
     text-align: center;
@@ -137,6 +142,7 @@ body { display: flex; justify-content: center; align-items: center; }
 }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
+/* Fase 2: Qualificação Visual */
 .options-container {
     position: absolute; bottom: 0; left: 0;
     width: 100%; padding: 25px;
@@ -157,6 +163,7 @@ body { display: flex; justify-content: center; align-items: center; }
 @keyframes fadeInButton { to { opacity: 1; transform: translateY(0); } }
 .option-btn:hover { background: var(--verde-neon); color: var(--roxo-fundo); border-color: var(--verde-neon); transform: scale(1.03); }
 
+/* Tela Final */
 #unmute-video-btn {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 100;
@@ -171,6 +178,7 @@ body { display: flex; justify-content: center; align-items: center; }
     box-shadow: 0 8px 30px rgba(0, 223, 154, 0.6);
 }
 
+/* Responsividade */
 @media (max-width: 500px) {
     .interaction-container { border-radius: 0; width: 100%; height: 100%; max-width: none; max-height: none;}
     .control-button { top: 15px; }
@@ -178,8 +186,9 @@ body { display: flex; justify-content: center; align-items: center; }
     .control-button.top-right { right: 15px; }
 }
 
+/* Estilo para o novo botão de avançar */
 .input-area .submit-btn {
-    margin-top: 15px;
+    margin-top: 15px; /* Cria um espaço entre o campo de texto e o botão */
     background-color: var(--verde-neon);
     color: var(--roxo-fundo);
     font-weight: 600;
