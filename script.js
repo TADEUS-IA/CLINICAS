@@ -1,14 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ================== CONFIGURAÇÃO ESTRATÉGICA ==================
+    // ===================================================================
+    // =================== ÁREA DE CONFIGURAÇÃO ESTRATÉGICA ==============
+    // ===================================================================
+
     const webhookURL = 'http://localhost:5678/webhook-test/capturadeclientes';
     const finalVideoPath = 'video.mp4';
     const backgroundMusicPath = 'musica.mp3';
+
     const validationRegex = {
         name: /^[a-zA-ZáàãâéèêíìóòõôúùçÇÁÀÃÂÉÈÊÍÌÓÒÕÔÚÙ\s'-]{3,}$/,
         phone: /^\(?(?:[1-9][0-9])\)?\s?9?\d{4,5}-?\d{4}$/,
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     };
+
     const journey = [
         { type: 'multiple-choice', name: "etapa_1_engajamento", image: "imagem01.jpg", options: [ { text: "Perco clientes por demora", value: 2 }, { text: "Meu processo é manual", value: 1 }, { text: "Estou apenas curioso", value: 0 } ] },
         { type: 'text-input', name: 'nome', image: 'imagem02.jpg', question: 'Entendido. Para continuarmos, qual seu nome?', validation: validationRegex.name },
@@ -22,7 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: 'multiple-choice', name: "etapa_7_decisao", image: "imagem10.jpg", options: [ { text: "Vamos iniciar a parceria", value: 2 }, { text: "Preciso de mais detalhes", value: 1 }, { text: "Vou pensar a respeito", value: 0 } ] }
     ];
     
-    // ================== ELEMENTOS DA INTERFACE (UI) ==================
+    // ======================= FIM DA CONFIGURAÇÃO =======================
+
     const ui = {
         interactionContainer: document.getElementById('interaction-container'),
         messageContainer: document.getElementById('message-container'),
@@ -38,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
         unmuteVideoBtn: document.getElementById('unmute-video-btn'),
     };
 
-    // ================== ESTADO DA APLICAÇÃO ==================
     let appState = 'JOURNEY';
     let currentStepIndex = 0;
     let userAnswers = {};
@@ -46,8 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeImage = ui.imageBg1;
     let inactiveImage = ui.imageBg2;
 
-    // ================== FUNÇÕES PRINCIPAIS ==================
-    
     const updateImage = (newSrc) => {
         return new Promise((resolve) => {
             if (!newSrc || activeImage.src.endsWith(newSrc)) return resolve();
@@ -60,7 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 resolve();
             };
             inactiveImage.addEventListener('load', listener);
-            inactiveImage.onerror = () => { console.error(`Erro ao carregar imagem: ${newSrc}`); resolve(); };
+            inactiveImage.onerror = () => {
+                console.error(`Erro ao carregar imagem: ${newSrc}`);
+                inactiveImage.removeEventListener('load', listener);
+                resolve();
+            };
         });
     };
     
@@ -73,14 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
         appState = 'JOURNEY';
         const currentStep = journey[currentStepIndex];
 
-        // CORRIGIDO: Garante que a UI da jornada esteja sempre visível ao renderizar uma etapa
-        ui.messageContainer.style.display = 'block';
-        ui.optionsContainer.style.display = 'flex';
-        ui.finalVideo.style.display = 'none';
-        ui.unmuteVideoBtn.style.display = 'none';
-
         ui.backBtn.style.display = currentStepIndex > 0 ? 'flex' : 'none';
         ui.audioBtn.style.display = 'flex';
+        ui.finalVideo.style.display = 'none';
         
         await updateImage(currentStep.image);
         
@@ -88,19 +90,26 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.optionsContainer.innerHTML = '';
         ui.inputArea.style.display = 'none';
 
+        // ADICIONADO (1 de 3): Remove o botão "Avançar" antigo antes de renderizar um novo.
         const oldSubmitBtn = ui.inputArea.querySelector('.submit-btn');
-        if (oldSubmitBtn) oldSubmitBtn.remove();
+        if (oldSubmitBtn) {
+            oldSubmitBtn.remove();
+        }
 
         if (currentStep.type === 'text-input') {
             ui.inputArea.style.display = 'block';
             ui.userInput.value = userAnswers[currentStep.name] || '';
             ui.userInput.classList.remove('error');
             
+            // ALTERADO (2 de 3): Linha desativada para evitar que o teclado do celular cause instabilidade.
+            // ui.userInput.focus();
+            
             const msgEl = document.createElement('div');
             msgEl.className = 'bot-message';
             msgEl.textContent = currentStep.question;
             ui.messageContainer.appendChild(msgEl);
 
+            // ADICIONADO (3 de 3): Cria e adiciona o botão "Avançar" na tela.
             const submitBtn = document.createElement('button');
             submitBtn.textContent = 'Avançar';
             submitBtn.className = 'option-btn submit-btn';
@@ -152,18 +161,17 @@ document.addEventListener('DOMContentLoaded', () => {
         isProcessing = true;
 
         if (appState === 'FINISHED') {
-            // CORRIGIDO: Lógica para voltar da tela de vídeo
             ui.finalVideo.pause();
             if (!ui.backgroundMusic.muted) {
                 ui.backgroundMusic.play().catch(()=>{});
             }
-            // Não deleta a resposta, apenas volta para a última etapa para renderizar
+            const lastStepName = journey[journey.length - 1].name;
+            delete userAnswers[lastStepName];
             currentStepIndex = journey.length - 1;
         } else {
             currentStepIndex--;
         }
         
-        // Deleta a resposta da etapa para a qual estamos voltando, para que possa ser refeita
         const previousStep = journey[currentStepIndex];
         delete userAnswers[previousStep.name];
         renderStep();
@@ -182,24 +190,19 @@ document.addEventListener('DOMContentLoaded', () => {
         isProcessing = true;
         appState = 'FINISHED';
 
-        // CORRIGIDO: Pausa a música ANTES de mostrar o vídeo
-        ui.backgroundMusic.pause();
-
         ui.inputArea.style.display = 'none';
-        ui.messageContainer.style.display = 'none';
-        ui.optionsContainer.style.display = 'none';
+        ui.messageContainer.innerHTML = '';
+        ui.optionsContainer.innerHTML = '';
         activeImage.classList.remove('active');
         inactiveImage.classList.remove('active');
+
+        ui.backgroundMusic.pause();
 
         ui.finalVideo.src = finalVideoPath;
         ui.finalVideo.style.display = 'block';
         ui.unmuteVideoBtn.style.display = 'block';
         ui.backBtn.style.display = 'flex';
-        
-        // CORRIGIDO: Garante que o vídeo toque (mutado por padrão)
-        ui.finalVideo.play().catch(error => {
-            console.warn("Autoplay do vídeo foi impedido pelo navegador. Interação do usuário é necessária.", error);
-        });
+        ui.finalVideo.play();
         
         const payload = {
             nome: userAnswers.nome,
@@ -235,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const imageSources = journey.map(step => step.image).filter(Boolean);
         const imagePromises = imageSources.map(src => new Promise((resolve) => {
-            const img = new Image(); img.src = src; img.onload = img.onerror = resolve;
+            const img = new Image(); img.src = src; img.onload = resolve; img.onerror = resolve;
         }));
         await Promise.all(imagePromises);
         
@@ -248,10 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     ui.userInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleTextInput();
-        }
+        if (e.key === 'Enter') handleTextInput();
     });
     
     ui.backBtn.addEventListener('click', goBack);
