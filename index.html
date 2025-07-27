@@ -14,41 +14,32 @@
 </head>
 <body>
 
-    <main id="app-container" class="journey-app">
+    <div id="interaction-container" class="interaction-container">
+        
+        <button id="back-btn" class="control-button top-left" style="display: none;" aria-label="Voltar">
+            <i class="fas fa-arrow-left"></i>
+        </button>
 
-        <div class="journey-app__media-container">
-            <img id="image-bg-1" class="journey-app__background-image" src="" alt="Contexto visual da etapa">
-            <img id="image-bg-2" class="journey-app__background-image" src="" alt="Contexto visual da etapa">
-            <video id="final-video" class="journey-app__final-video" src="" muted playsinline loop aria-label="Vídeo final"></video>
-            <div class="journey-app__media-overlay"></div>
+        <button id="audio-btn" class="control-button top-right" style="display: none;" aria-label="Ativar/Desativar som">
+            <i class="fas fa-volume-high"></i>
+        </button>
+
+        <div class="media-container">
+            <img id="image-bg-1" class="background-image" src="" alt="Contexto visual da etapa">
+            <img id="image-bg-2" class="background-image" src="" alt="Contexto visual da etapa">
+            <video id="final-video" src="" muted playsinline loop style="display: none;" aria-label="Vídeo final"></video>
+            <div class="media-overlay"></div>
+            <button id="unmute-video-btn" style="display: none;">Ativar Som</button>
         </div>
 
-        <header class="journey-app__header">
-            <button id="back-btn" class="journey-app__control-button" aria-label="Voltar">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <button id="audio-btn" class="journey-app__control-button" aria-label="Ativar/Desativar som">
-                <i class="fas fa-volume-high"></i>
-            </button>
-        </header>
-
-        <div class="journey-app__content">
-            <div id="message-container" class="journey-app__message-container">
-                </div>
-            
-            <div id="options-container" class="journey-app__options-container">
-                </div>
-
-            <form id="input-form" class="journey-app__form">
-                <input type="text" id="user-input" autocomplete="off" aria-label="Sua resposta">
-                <button type="submit" class="journey-app__button submit-btn">Avançar</button>
-            </form>
+        <div id="message-container" class="message-container"></div>
+        
+        <div id="input-area" class="input-area" style="display: none;">
+            <input type="text" id="user-input" autocomplete="off" aria-label="Sua resposta">
         </div>
 
-        <div id="final-screen-controls" class="journey-app__final-screen">
-            <button id="unmute-video-btn">Ativar Som do Vídeo</button>
-        </div>
-    </main>
+        <div id="options-container" class="options-container"></div>
+    </div>
 
     <audio id="background-music" loop></audio> 
     
