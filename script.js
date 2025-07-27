@@ -1,39 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ===================================================================
-    // MÓDULO DE CONFIGURAÇÃO: Seus dados estratégicos, intocados.
+    // =================== ÁREA DE CONFIGURAÇÃO ESTRATÉGICA ==============
     // ===================================================================
-    const CONFIG = {
-        webhookURL: 'http://localhost:5678/webhook-test/capturadeclientes',
-        finalVideoPath: 'video.mp4',
-        backgroundMusicPath: 'musica.mp3',
-        validationRegex: {
-            name: /^[a-zA-ZáàãâéèêíìóòõôúùçÇÁÀÃÂÉÈÊÍÌÓÒÕÔÚÙ\s'-]{3,}$/,
-            phone: /^\(?(?:[1-9][0-9])\)?\s?9?\d{4,5}-?\d{4}$/,
-            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        },
-        journey: [
-            { type: 'multiple-choice', name: "etapa_1_engajamento", image: "imagem01.jpg", options: [ { text: "Perco clientes por demora", value: 2 }, { text: "Meu processo é manual", value: 1 }, { text: "Estou apenas curioso", value: 0 } ] },
-            { type: 'text-input', name: 'nome', image: 'imagem02.jpg', question: 'Entendido. Para continuarmos, qual seu nome?', validation: 'name' },
-            { type: 'text-input', name: 'email', image: 'imagem03.jpg', question: 'Obrigado. Agora, seu melhor e-mail.', validation: 'email' },
-            { type: 'text-input', name: 'telefone', image: 'imagem04.jpg', question: 'Perfeito. E para finalizar, seu telefone.', validation: 'phone' },
-            { type: 'multiple-choice', name: "etapa_2_solucao", image: "imagem05.jpg", options: [ { text: "Preciso automatizar agora", value: 2 }, { text: "Quero mais eficiência", value: 1 }, { text: "Tenho medo de robôs", value: 0 } ] },
-            { type: 'multiple-choice', name: "etapa_3_disponibilidade", image: "imagem06.jpg", options: [ { text: "Quero atender 24/7", value: 2 }, { text: "Atendo em horário comercial", value: 1 }, { text: "Meu público é específico", value: 0 } ] },
-            { type: 'multiple-choice', name: "etapa_4_investimento", image: "imagem07.jpg", options: [ { text: "Investir para escalar", value: 2 }, { text: "Busco custo-benefício", value: 1 }, { text: "Quero algo gratuito", value: 0 } ] },
-            { type: 'multiple-choice', name: "etapa_5_implementacao", image: "imagem08.jpg", options: [ { text: "Quero começar hoje", value: 2 }, { text: "Preciso de ajuda para iniciar", value: 1 }, { text: "Parece complicado", value: 0 } ] },
-            { type: 'multiple-choice', name: "etapa_6_concorrencia", image: "imagem09.jpg", options: [ { text: "Quero estar à frente", value: 2 }, { text: "Acompanho o mercado", value: 1 }, { text: "Não me comparo", value: 0 } ] },
-            { type: 'multiple-choice', name: "etapa_7_decisao", image: "imagem10.jpg", options: [ { text: "Vamos iniciar a parceria", value: 2 }, { text: "Preciso de mais detalhes", value: 1 }, { text: "Vou pensar a respeito", value: 0 } ] }
-        ]
+
+    const webhookURL = 'http://localhost:5678/webhook-test/capturadeclientes';
+    const finalVideoPath = 'video.mp4';
+    const backgroundMusicPath = 'musica.mp3';
+
+    const validationRegex = {
+        name: /^[a-zA-ZáàãâéèêíìóòõôúùçÇÁÀÃÂÉÈÊÍÌÓÒÕÔÚÙ\s'-]{3,}$/,
+        phone: /^\(?(?:[1-9][0-9])\)?\s?9?\d{4,5}-?\d{4}$/,
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     };
 
-    // ===================================================================
-    // MÓDULO DE UI: Referências para os elementos do DOM.
-    // ===================================================================
-    const UI = {
-        appContainer: document.getElementById('app-container'),
+    const journey = [
+        { type: 'multiple-choice', name: "etapa_1_engajamento", image: "imagem01.jpg", options: [ { text: "Perco clientes por demora", value: 2 }, { text: "Meu processo é manual", value: 1 }, { text: "Estou apenas curioso", value: 0 } ] },
+        { type: 'text-input', name: 'nome', image: 'imagem02.jpg', question: 'Entendido. Para continuarmos, qual seu nome?', validation: validationRegex.name },
+        { type: 'text-input', name: 'email', image: 'imagem03.jpg', question: 'Obrigado. Agora, seu melhor e-mail.', validation: validationRegex.email },
+        { type: 'text-input', name: 'telefone', image: 'imagem04.jpg', question: 'Perfeito. E para finalizar, seu telefone.', validation: validationRegex.phone },
+        { type: 'multiple-choice', name: "etapa_2_solucao", image: "imagem05.jpg", options: [ { text: "Preciso automatizar agora", value: 2 }, { text: "Quero mais eficiência", value: 1 }, { text: "Tenho medo de robôs", value: 0 } ] },
+        { type: 'multiple-choice', name: "etapa_3_disponibilidade", image: "imagem06.jpg", options: [ { text: "Quero atender 24/7", value: 2 }, { text: "Atendo em horário comercial", value: 1 }, { text: "Meu público é específico", value: 0 } ] },
+        { type: 'multiple-choice', name: "etapa_4_investimento", image: "imagem07.jpg", options: [ { text: "Investir para escalar", value: 2 }, { text: "Busco custo-benefício", value: 1 }, { text: "Quero algo gratuito", value: 0 } ] },
+        { type: 'multiple-choice', name: "etapa_5_implementacao", image: "imagem08.jpg", options: [ { text: "Quero começar hoje", value: 2 }, { text: "Preciso de ajuda para iniciar", value: 1 }, { text: "Parece complicado", value: 0 } ] },
+        { type: 'multiple-choice', name: "etapa_6_concorrencia", image: "imagem09.jpg", options: [ { text: "Quero estar à frente", value: 2 }, { text: "Acompanho o mercado", value: 1 }, { text: "Não me comparo", value: 0 } ] },
+        { type: 'multiple-choice', name: "etapa_7_decisao", image: "imagem10.jpg", options: [ { text: "Vamos iniciar a parceria", value: 2 }, { text: "Preciso de mais detalhes", value: 1 }, { text: "Vou pensar a respeito", value: 0 } ] }
+    ];
+    
+    // ======================= FIM DA CONFIGURAÇÃO =======================
+
+    const ui = {
+        interactionContainer: document.getElementById('interaction-container'),
         messageContainer: document.getElementById('message-container'),
         optionsContainer: document.getElementById('options-container'),
-        inputForm: document.getElementById('input-form'),
+        inputArea: document.getElementById('input-area'),
         userInput: document.getElementById('user-input'),
         imageBg1: document.getElementById('image-bg-1'),
         imageBg2: document.getElementById('image-bg-2'),
@@ -41,265 +41,243 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn: document.getElementById('back-btn'),
         audioBtn: document.getElementById('audio-btn'),
         finalVideo: document.getElementById('final-video'),
-        finalScreenControls: document.getElementById('final-screen-controls'),
         unmuteVideoBtn: document.getElementById('unmute-video-btn'),
     };
 
-    // ===================================================================
-    // MÓDULO DE ESTADO: O "cérebro" da aplicação.
-    // ===================================================================
-    const STATE = {
-        currentStepIndex: 0,
-        userAnswers: {},
-        isProcessing: false,
-        activeImage: UI.imageBg1,
-        inactiveImage: UI.imageBg2,
-    };
+    let appState = 'JOURNEY';
+    let currentStepIndex = 0;
+    let userAnswers = {};
+    let isProcessing = false;
+    let activeImage = ui.imageBg1;
+    let inactiveImage = ui.imageBg2;
 
-    // ===================================================================
-    // LÓGICA DA APLICAÇÃO
-    // ===================================================================
-    
-    /**
-     * Atualiza a imagem de fundo com efeito de cross-fade.
-     */
-    async function updateImage(newSrc) {
-        if (!newSrc || STATE.activeImage.src.endsWith(newSrc)) return;
-
+    const updateImage = (newSrc) => {
         return new Promise((resolve) => {
-            STATE.inactiveImage.src = newSrc;
-            const onImageLoad = () => {
-                STATE.activeImage.classList.remove('is-active');
-                STATE.inactiveImage.classList.add('is-active');
-                [STATE.activeImage, STATE.inactiveImage] = [STATE.inactiveImage, STATE.activeImage];
-                STATE.inactiveImage.removeEventListener('load', onImageLoad);
+            if (!newSrc || activeImage.src.endsWith(newSrc)) return resolve();
+            inactiveImage.src = newSrc;
+            const listener = () => {
+                activeImage.classList.remove('active');
+                inactiveImage.classList.add('active');
+                [activeImage, inactiveImage] = [inactiveImage, activeImage];
+                inactiveImage.removeEventListener('load', listener);
                 resolve();
             };
-            STATE.inactiveImage.addEventListener('load', onImageLoad);
-            STATE.inactiveImage.onerror = () => {
+            inactiveImage.addEventListener('load', listener);
+            inactiveImage.onerror = () => {
                 console.error(`Erro ao carregar imagem: ${newSrc}`);
+                inactiveImage.removeEventListener('load', listener);
                 resolve();
             };
         });
-    }
-
-    /**
-     * Renderiza a UI com base no estado atual da aplicação.
-     */
-    async function render() {
-        if (STATE.isProcessing) return;
-        STATE.isProcessing = true;
-
-        const step = CONFIG.journey[STATE.currentStepIndex];
-        if (!step) {
-            console.error("Etapa da jornada não encontrada para o índice:", STATE.currentStepIndex);
-            STATE.isProcessing = false;
-            return;
-        }
-
-        await updateImage(step.image);
-
-        UI.messageContainer.innerHTML = '';
-        UI.optionsContainer.innerHTML = '';
-        UI.appContainer.className = 'journey-app is-visible'; 
-        
-        if (step.type === 'multiple-choice') {
-            UI.appContainer.classList.add('is-choice-step');
-        } else if (step.type === 'text-input') {
-            UI.appContainer.classList.add('is-input-step');
-        }
-
-        if (step.question) {
-            const msgEl = document.createElement('div');
-            msgEl.className = 'bot-message';
-            msgEl.textContent = step.question;
-            UI.messageContainer.appendChild(msgEl);
-        }
-        
-        if (step.type === 'multiple-choice') {
-            step.options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.className = 'journey-app__button';
-                button.textContent = option.text;
-                button.style.animationDelay = `${index * 100}ms`;
-                button.onclick = () => handleChoice(option, step.name);
-                UI.optionsContainer.appendChild(button);
-            });
-        } else if (step.type === 'text-input') {
-            UI.userInput.value = STATE.userAnswers[step.name] || '';
-            UI.userInput.classList.remove('is-error');
-        }
-
-        UI.backBtn.classList.toggle('is-visible', STATE.currentStepIndex > 0);
-        UI.audioBtn.classList.toggle('is-visible', true);
-
-        STATE.isProcessing = false;
-    }
-
-    /**
-     * Navega para uma etapa específica, atualizando o estado e a URL.
-     */
-    function navigateToStep(index) {
-        if (index >= CONFIG.journey.length) {
+    };
+    
+    const renderStep = async () => {
+        if (currentStepIndex >= journey.length) {
             finishJourney();
             return;
         }
+        isProcessing = true;
+        appState = 'JOURNEY';
+        const currentStep = journey[currentStepIndex];
+
+        ui.backBtn.style.display = currentStepIndex > 0 ? 'flex' : 'none';
+        ui.audioBtn.style.display = 'flex';
+        ui.finalVideo.style.display = 'none';
         
-        // Garante que o estado visual não seja da tela final
-        UI.appContainer.classList.remove('is-final-step');
-        UI.finalVideo.style.display = 'none';
-        UI.finalScreenControls.style.display = 'none';
-
-        STATE.currentStepIndex = index;
-        history.pushState({ step: index }, '', `#etapa=${index + 1}`);
-        render();
-    }
-    
-    function handleChoice(option, stepName) {
-        if (STATE.isProcessing) return;
-        STATE.userAnswers[stepName] = { text: option.text, value: option.value };
-        navigateToStep(STATE.currentStepIndex + 1);
-    }
-
-    function handleFormSubmit(event) {
-        event.preventDefault();
-        if (STATE.isProcessing) return;
+        await updateImage(currentStep.image);
         
-        const currentStep = CONFIG.journey[STATE.currentStepIndex];
-        const answer = UI.userInput.value.trim();
-        const validationRule = CONFIG.validationRegex[currentStep.validation];
+        ui.messageContainer.innerHTML = '';
+        ui.optionsContainer.innerHTML = '';
+        ui.inputArea.style.display = 'none';
 
-        if (validationRule && !validationRule.test(answer)) {
-            UI.userInput.classList.add('is-error');
-            setTimeout(() => UI.userInput.classList.remove('is-error'), 500);
+        // ADICIONADO (1 de 3): Remove o botão "Avançar" antigo antes de renderizar um novo.
+        const oldSubmitBtn = ui.inputArea.querySelector('.submit-btn');
+        if (oldSubmitBtn) {
+            oldSubmitBtn.remove();
+        }
+
+        if (currentStep.type === 'text-input') {
+            ui.inputArea.style.display = 'block';
+            ui.userInput.value = userAnswers[currentStep.name] || '';
+            ui.userInput.classList.remove('error');
+            
+            // ALTERADO (2 de 3): Linha desativada para evitar que o teclado do celular cause instabilidade.
+            // ui.userInput.focus();
+            
+            const msgEl = document.createElement('div');
+            msgEl.className = 'bot-message';
+            msgEl.textContent = currentStep.question;
+            ui.messageContainer.appendChild(msgEl);
+
+            // ADICIONADO (3 de 3): Cria e adiciona o botão "Avançar" na tela.
+            const submitBtn = document.createElement('button');
+            submitBtn.textContent = 'Avançar';
+            submitBtn.className = 'option-btn submit-btn';
+            submitBtn.onclick = handleTextInput;
+            ui.inputArea.appendChild(submitBtn);
+
+        } else if (currentStep.type === 'multiple-choice') {
+            currentStep.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option.text;
+                button.style.animationDelay = `${index * 100}ms`;
+                button.onclick = () => handleChoice(option, currentStep.name);
+                ui.optionsContainer.appendChild(button);
+            });
+        }
+        
+        setTimeout(() => isProcessing = false, 200);
+    };
+
+    const handleTextInput = () => {
+        if (isProcessing) return;
+        const currentStep = journey[currentStepIndex];
+        const answer = ui.userInput.value.trim();
+
+        if (currentStep.validation && !currentStep.validation.test(answer)) {
+            ui.userInput.classList.add('error');
+            setTimeout(() => ui.userInput.classList.remove('error'), 500);
             return;
         }
         
-        STATE.userAnswers[currentStep.name] = answer;
-        navigateToStep(STATE.currentStepIndex + 1);
-    }
+        isProcessing = true;
+        userAnswers[currentStep.name] = answer;
+        currentStepIndex++;
+        renderStep();
+    };
+    
+    const handleChoice = (option, stepName) => {
+        if (isProcessing) return;
+        isProcessing = true;
+        userAnswers[stepName] = { text: option.text, value: option.value };
+        currentStepIndex++;
+        renderStep();
+    };
 
-    /**
-     * Lógica para o final da jornada (preservando o comportamento original).
-     */
-    async function finishJourney() {
-        if (STATE.isProcessing) return;
-        STATE.isProcessing = true;
-        history.pushState({ step: 'final' }, '', `#final`);
+    const goBack = () => {
+        if (isProcessing) return;
+        if (currentStepIndex === 0 && appState !== 'FINISHED') return;
+        isProcessing = true;
 
-        UI.appContainer.classList.add('is-final-step');
-        
-        // Controle explícito da UI final para máxima compatibilidade
-        UI.finalVideo.style.display = 'block';
-        UI.finalScreenControls.style.display = 'flex';
-        UI.unmuteVideoBtn.style.display = 'block';
-
-        UI.backgroundMusic.pause();
-        UI.finalVideo.src = CONFIG.finalVideoPath;
-        UI.finalVideo.play().catch(err => console.error("Erro ao tocar vídeo:", err));
-        UI.backBtn.classList.add('is-visible');
-
-        const payload = buildPayload();
-        try {
-            await fetch(CONFIG.webhookURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            console.log('Dados enviados com sucesso!');
-        } catch (error) {
-            console.error('Falha ao enviar dados:', error);
-        } finally {
-            STATE.isProcessing = false;
-        }
-    }
-
-    function buildPayload() {
-        const payload = {
-            nome: STATE.userAnswers.nome,
-            email: STATE.userAnswers.email,
-            telefone: STATE.userAnswers.telefone,
-            classificacao_final: classifyLead()
-        };
-        CONFIG.journey.forEach(step => {
-            if (step.type === 'multiple-choice' && STATE.userAnswers[step.name]) {
-                payload[step.name] = STATE.userAnswers[step.name].text;
+        if (appState === 'FINISHED') {
+            ui.finalVideo.pause();
+            if (!ui.backgroundMusic.muted) {
+                ui.backgroundMusic.play().catch(()=>{});
             }
-        });
-        return payload;
-    }
+            const lastStepName = journey[journey.length - 1].name;
+            delete userAnswers[lastStepName];
+            currentStepIndex = journey.length - 1;
+        } else {
+            currentStepIndex--;
+        }
+        
+        const previousStep = journey[currentStepIndex];
+        delete userAnswers[previousStep.name];
+        renderStep();
+    };
 
-    function classifyLead() {
-        const score = Object.values(STATE.userAnswers)
+    const classifyLead = () => {
+        const score = Object.values(userAnswers)
             .filter(answer => typeof answer === 'object' && typeof answer.value === 'number')
             .reduce((sum, answer) => sum + answer.value, 0);
         if (score >= 10) return "Quente";
         if (score >= 5) return "Morno";
         return "Frio";
-    }
+    };
 
-    function handleBrowserNavigation(event) {
-        const state = event.state;
-        if (state && typeof state.step !== 'undefined') {
-            const stepIndex = state.step === 'final' ? CONFIG.journey.length : state.step;
-            navigateToStep(stepIndex);
-        } else {
-            navigateToStep(0);
+    const finishJourney = async () => {
+        isProcessing = true;
+        appState = 'FINISHED';
+
+        ui.inputArea.style.display = 'none';
+        ui.messageContainer.innerHTML = '';
+        ui.optionsContainer.innerHTML = '';
+        activeImage.classList.remove('active');
+        inactiveImage.classList.remove('active');
+
+        ui.backgroundMusic.pause();
+
+        ui.finalVideo.src = finalVideoPath;
+        ui.finalVideo.style.display = 'block';
+        ui.unmuteVideoBtn.style.display = 'block';
+        ui.backBtn.style.display = 'flex';
+        ui.finalVideo.play();
+        
+        const payload = {
+            nome: userAnswers.nome,
+            email: userAnswers.email,
+            telefone: userAnswers.telefone,
+            classificacao_final: classifyLead()
+        };
+        journey.forEach(step => {
+            if(step.type === 'multiple-choice' && userAnswers[step.name]) {
+                payload[step.name] = userAnswers[step.name].text;
+            }
+        });
+        
+        try {
+            await fetch(webhookURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            console.log('Dados enviados com sucesso para o n8n!');
+        } catch (error) {
+            console.error('Falha ao enviar dados:', error);
+        } finally {
+            isProcessing = false;
         }
-    }
+    };
     
-    async function init() {
-        if (CONFIG.backgroundMusicPath) {
-            UI.backgroundMusic.src = CONFIG.backgroundMusicPath;
-            UI.backgroundMusic.volume = 0.2;
-        }
-
-        const imageSources = CONFIG.journey.map(step => step.image).filter(Boolean);
-        await Promise.all(imageSources.map(src => new Promise((resolve) => {
-            const img = new Image();
-            img.src = src;
-            img.onload = img.onerror = resolve;
-        })));
-
-        UI.inputForm.addEventListener('submit', handleFormSubmit);
-        UI.backBtn.addEventListener('click', () => history.back());
-        UI.audioBtn.addEventListener('click', toggleMusic);
-        UI.unmuteVideoBtn.addEventListener('click', unmuteVideo);
-        window.addEventListener('popstate', handleBrowserNavigation);
-
-        const hash = window.location.hash;
-        let initialStep = 0;
-        if (hash.startsWith('#etapa=')) {
-            initialStep = parseInt(hash.split('=')[1] - 1, 10) || 0;
-        } else if (hash === '#final') {
-            initialStep = CONFIG.journey.length;
+    const init = async () => {
+        if (backgroundMusicPath) {
+            ui.backgroundMusic.src = backgroundMusicPath;
+            ui.backgroundMusic.volume = 0.2;
         }
         
-        navigateToStep(initialStep);
-        UI.appContainer.classList.add('is-visible');
+        const imageSources = journey.map(step => step.image).filter(Boolean);
+        const imagePromises = imageSources.map(src => new Promise((resolve) => {
+            const img = new Image(); img.src = src; img.onload = resolve; img.onerror = resolve;
+        }));
+        await Promise.all(imagePromises);
+        
+        activeImage.src = journey[0].image;
+        await new Promise(resolve => setTimeout(resolve, 10));
+        activeImage.classList.add('active');
+        
+        ui.interactionContainer.classList.add('visible');
+        renderStep();
+    };
+    
+    ui.userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleTextInput();
+    });
+    
+    ui.backBtn.addEventListener('click', goBack);
 
-        document.body.addEventListener('click', () => {
-            if (UI.backgroundMusic.paused && !UI.appContainer.classList.contains('is-final-step')) {
-                toggleMusic(true);
-            }
-        }, { once: true });
-    }
-
-    function toggleMusic(forcePlay = false) {
-        const music = UI.backgroundMusic;
-        if (forcePlay || music.paused) {
+    ui.audioBtn.addEventListener('click', () => {
+        const music = ui.backgroundMusic;
+        if (music.paused) {
             music.play().catch(() => {});
-            UI.audioBtn.classList.remove('is-muted');
+            ui.audioBtn.classList.remove('muted');
         } else {
             music.pause();
-            UI.audioBtn.classList.add('is-muted');
+            ui.audioBtn.classList.add('muted');
         }
-    }
+    });
+    
+    ui.unmuteVideoBtn.addEventListener('click', () => {
+        ui.finalVideo.muted = false;
+        ui.unmuteVideoBtn.style.display = 'none';
+    });
 
-    function unmuteVideo() {
-        UI.finalVideo.muted = false;
-        UI.unmuteVideoBtn.style.display = 'none';
-    }
-
+    document.body.addEventListener('click', () => {
+        if (ui.backgroundMusic.paused && appState !== 'FINISHED') {
+             ui.backgroundMusic.play().catch(() => {});
+             ui.audioBtn.classList.remove('muted');
+        }
+    }, { once: true });
+    
     init();
 });
