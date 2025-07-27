@@ -22,7 +22,6 @@ html, body {
 
 body { display: flex; justify-content: center; align-items: center; }
 
-/* Container Principal Redimensionado */
 .interaction-container {
     width: 95vw;
     height: 90vh;
@@ -43,10 +42,11 @@ body { display: flex; justify-content: center; align-items: center; }
     opacity: 1;
 }
 
-/* Transição Suave de Imagem (Cross-fade) */
+/* Mídia de Fundo */
 .media-container {
-    position: relative;
-    flex: 1;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background-color: #000;
 }
 .background-image {
@@ -63,16 +63,15 @@ body { display: flex; justify-content: center; align-items: center; }
 #final-video {
     width: 100%; height: 100%;
     object-fit: cover;
-    display: none;
 }
 .media-overlay {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
-    background: linear-gradient(to top, rgba(24, 24, 40, 0.95) 0%, rgba(24, 24, 40, 0.6) 35%, transparent 65%);
+    background: linear-gradient(to top, rgba(24, 24, 40, 0.98) 5%, rgba(24, 24, 40, 0.7) 40%, transparent 70%);
     pointer-events: none;
 }
 
-/* Controles (Voltar e Áudio) */
+/* Controles Superiores */
 .control-button {
     position: absolute; top: 20px;
     background: rgba(0, 0, 0, 0.4);
@@ -94,14 +93,20 @@ body { display: flex; justify-content: center; align-items: center; }
     font-weight: 600;
 }
 
-/* Fase 1: Coleta de Dados Guiada */
-.message-container {
-    position: absolute;
-    /* ALTERADO: Aumentei o valor para levantar a mensagem e evitar sobreposição. */
-    bottom: 200px; 
-    left: 25px; right: 25px;
+/* Área de Conteúdo Principal */
+#content-area {
+    position: relative;
     z-index: 20;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex-grow: 1;
+    padding: 25px;
+    transition: opacity 0.3s ease-in-out;
+}
+.message-container {
     text-align: center;
+    padding-bottom: 20px;
     pointer-events: none;
 }
 .bot-message {
@@ -120,8 +125,9 @@ body { display: flex; justify-content: center; align-items: center; }
 @keyframes fadeInMessage { to { opacity: 1; transform: translateY(0); } }
 
 .input-area {
-    position: absolute; bottom: 0; left: 0;
-    width: 100%; padding: 25px; z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 #user-input {
     width: 100%;
@@ -142,12 +148,10 @@ body { display: flex; justify-content: center; align-items: center; }
 }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-/* Fase 2: Qualificação Visual */
 .options-container {
-    position: absolute; bottom: 0; left: 0;
-    width: 100%; padding: 25px;
-    display: flex; flex-direction: column;
-    gap: 15px; z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 .option-btn {
     width: 100%; background: rgba(255, 255, 255, 0.1);
@@ -163,10 +167,23 @@ body { display: flex; justify-content: center; align-items: center; }
 @keyframes fadeInButton { to { opacity: 1; transform: translateY(0); } }
 .option-btn:hover { background: var(--verde-neon); color: var(--roxo-fundo); border-color: var(--verde-neon); transform: scale(1.03); }
 
-/* Tela Final */
+/* Botão de Avançar específico */
+.submit-btn {
+    background-color: var(--verde-neon);
+    color: var(--roxo-fundo);
+    font-weight: 600;
+}
+
+/* Controles da Tela Final */
+#final-video-controls {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 #unmute-video-btn {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%); z-index: 100;
     padding: 15px 30px; font-size: 1rem; font-weight: 600;
     color: var(--roxo-fundo); background-color: var(--verde-neon);
     border: none; border-radius: 30px; cursor: pointer;
@@ -174,7 +191,7 @@ body { display: flex; justify-content: center; align-items: center; }
     box-shadow: 0 5px 20px rgba(0, 223, 154, 0.4);
 }
 #unmute-video-btn:hover {
-    transform: translate(-50%, -50%) scale(1.05);
+    transform: scale(1.05);
     box-shadow: 0 8px 30px rgba(0, 223, 154, 0.6);
 }
 
@@ -184,12 +201,4 @@ body { display: flex; justify-content: center; align-items: center; }
     .control-button { top: 15px; }
     .control-button.top-left { left: 15px; }
     .control-button.top-right { right: 15px; }
-}
-
-/* Estilo para o novo botão de avançar */
-.input-area .submit-btn {
-    margin-top: 15px; /* Cria um espaço entre o campo de texto e o botão */
-    background-color: var(--verde-neon);
-    color: var(--roxo-fundo);
-    font-weight: 600;
 }
