@@ -7,7 +7,8 @@
     --cinza-texto: #a0a0b0;
     --vermelho-erro: #e74c3c;
     --font-family: 'Lexend', sans-serif;
-    --vh: 1vh; /* Variável de fallback */
+    /* AJUSTE: Variável para altura da tela, corrigida via JS */
+    --vh: 1vh; 
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,7 +24,7 @@ html, body {
 
 body { display: flex; justify-content: center; align-items: center; }
 
-/* AJUSTE: A altura agora usa a variável --vh para ignorar o teclado mobile */
+/* AJUSTE: Altura agora usa a variável --vh para ser à prova de teclado mobile */
 .interaction-container {
     width: 95vw;
     height: calc(var(--vh, 1vh) * 90); /* Usa a variável customizada */
@@ -40,7 +41,6 @@ body { display: flex; justify-content: center; align-items: center; }
     transition: opacity 1s ease-out;
 }
 
-/* ... O restante do CSS permanece exatamente o mesmo ... */
 .interaction-container.visible { opacity: 1; }
 .media-container { position: relative; flex: 1; background-color: #000; }
 .background-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease-in-out; }
