@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn: document.getElementById('back-btn'),
         audioBtn: document.getElementById('audio-btn'),
         finalVideo: document.getElementById('final-video'),
-        finalScreen: document.querySelector('.journey-app__final-screen'),
+        finalScreenControls: document.getElementById('final-screen-controls'),
         unmuteVideoBtn: document.getElementById('unmute-video-btn'),
     };
 
@@ -71,42 +71,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const onImageLoad = () => {
                 STATE.activeImage.classList.remove('is-active');
                 STATE.inactiveImage.classList.add('is-active');
-                [STATE.activeImage, STATE.inactiveImage] = [STATE.inactiveImage, STATE.activeImage]; // Troca as referências
+                [STATE.activeImage, STATE.inactiveImage] = [STATE.inactiveImage, STATE.activeImage];
                 STATE.inactiveImage.removeEventListener('load', onImageLoad);
                 resolve();
             };
             STATE.inactiveImage.addEventListener('load', onImageLoad);
             STATE.inactiveImage.onerror = () => {
                 console.error(`Erro ao carregar imagem: ${newSrc}`);
-                resolve(); // Continua mesmo com erro
+                resolve();
             };
         });
     }
 
     /**
      * Renderiza a UI com base no estado atual da aplicação.
-     * Esta é a única função que deve modificar o DOM diretamente.
      */
     async function render() {
+        if (STATE.isProcessing) return;
         STATE.isProcessing = true;
-        const step = CONFIG.journey[STATE.currentStepIndex];
 
-        // Atualiza a imagem de fundo
+        const step = CONFIG.journey[STATE.currentStepIndex];
+        if (!step) {
+            console.error("Etapa da jornada não encontrada para o índice:", STATE.currentStepIndex);
+            STATE.isProcessing = false;
+            return;
+        }
+
         await updateImage(step.image);
 
-        // Limpa os contêineres
         UI.messageContainer.innerHTML = '';
         UI.optionsContainer.innerHTML = '';
-
-        // Atualiza a classe de estado do container principal
-        UI.appContainer.className = 'journey-app is-visible'; // Reseta as classes
+        UI.appContainer.className = 'journey-app is-visible'; 
+        
         if (step.type === 'multiple-choice') {
             UI.appContainer.classList.add('is-choice-step');
         } else if (step.type === 'text-input') {
             UI.appContainer.classList.add('is-input-step');
         }
 
-        // Renderiza a mensagem do bot, se houver
         if (step.question) {
             const msgEl = document.createElement('div');
             msgEl.className = 'bot-message';
@@ -114,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             UI.messageContainer.appendChild(msgEl);
         }
         
-        // Renderiza as opções ou o campo de input
         if (step.type === 'multiple-choice') {
             step.options.forEach((option, index) => {
                 const button = document.createElement('button');
@@ -129,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
             UI.userInput.classList.remove('is-error');
         }
 
-        // Controla a visibilidade dos botões de controle
         UI.backBtn.classList.toggle('is-visible', STATE.currentStepIndex > 0);
         UI.audioBtn.classList.toggle('is-visible', true);
 
@@ -140,33 +140,29 @@ document.addEventListener('DOMContentLoaded', () => {
      * Navega para uma etapa específica, atualizando o estado e a URL.
      */
     function navigateToStep(index) {
-        if (STATE.isProcessing || index < 0) return;
-        
-        // Final da jornada
         if (index >= CONFIG.journey.length) {
             finishJourney();
-            history.pushState({ step: 'final' }, '', `#final`);
             return;
         }
+        
+        // Garante que o estado visual não seja da tela final
+        UI.appContainer.classList.remove('is-final-step');
+        UI.finalVideo.style.display = 'none';
+        UI.finalScreenControls.style.display = 'none';
 
         STATE.currentStepIndex = index;
         history.pushState({ step: index }, '', `#etapa=${index + 1}`);
         render();
     }
-
-    /**
-     * Manipula a escolha de uma opção de múltipla escolha.
-     */
+    
     function handleChoice(option, stepName) {
+        if (STATE.isProcessing) return;
         STATE.userAnswers[stepName] = { text: option.text, value: option.value };
         navigateToStep(STATE.currentStepIndex + 1);
     }
 
-    /**
-     * Manipula o envio do formulário de texto.
-     */
     function handleFormSubmit(event) {
-        event.preventDefault(); // Impede o recarregamento da página
+        event.preventDefault();
         if (STATE.isProcessing) return;
         
         const currentStep = CONFIG.journey[STATE.currentStepIndex];
@@ -184,16 +180,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Lógica para o final da jornada (vídeo e envio de dados).
+     * Lógica para o final da jornada (preservando o comportamento original).
      */
     async function finishJourney() {
+        if (STATE.isProcessing) return;
         STATE.isProcessing = true;
-        UI.appContainer.className = 'journey-app is-visible is-final-step';
+        history.pushState({ step: 'final' }, '', `#final`);
+
+        UI.appContainer.classList.add('is-final-step');
         
+        // Controle explícito da UI final para máxima compatibilidade
+        UI.finalVideo.style.display = 'block';
+        UI.finalScreenControls.style.display = 'flex';
+        UI.unmuteVideoBtn.style.display = 'block';
+
         UI.backgroundMusic.pause();
         UI.finalVideo.src = CONFIG.finalVideoPath;
         UI.finalVideo.play().catch(err => console.error("Erro ao tocar vídeo:", err));
-        UI.backBtn.classList.add('is-visible'); // Garante que o botão voltar apareça
+        UI.backBtn.classList.add('is-visible');
 
         const payload = buildPayload();
         try {
@@ -210,9 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * Monta o objeto de dados para envio ao webhook.
-     */
     function buildPayload() {
         const payload = {
             nome: STATE.userAnswers.nome,
@@ -228,9 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return payload;
     }
 
-    /**
-     * Classifica o lead com base nas respostas. (Lógica original preservada)
-     */
     function classifyLead() {
         const score = Object.values(STATE.userAnswers)
             .filter(answer => typeof answer === 'object' && typeof answer.value === 'number')
@@ -240,36 +238,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return "Frio";
     }
 
-    /**
-     * Manipula o evento 'popstate' (botão voltar/avançar do navegador).
-     */
     function handleBrowserNavigation(event) {
         const state = event.state;
         if (state && typeof state.step !== 'undefined') {
-            if (state.step === 'final') {
-                 // Se o usuário volta da tela final, o ideal é recarregar a última etapa.
-                STATE.currentStepIndex = CONFIG.journey.length - 1;
-                navigateToStep(STATE.currentStepIndex);
-            } else {
-                navigateToStep(state.step);
-            }
+            const stepIndex = state.step === 'final' ? CONFIG.journey.length : state.step;
+            navigateToStep(stepIndex);
         } else {
-            // Se não há estado, volta para o início.
             navigateToStep(0);
         }
     }
     
-    /**
-     * Inicializa a aplicação, pré-carrega imagens e define os listeners.
-     */
     async function init() {
-        // Configura música de fundo
         if (CONFIG.backgroundMusicPath) {
             UI.backgroundMusic.src = CONFIG.backgroundMusicPath;
             UI.backgroundMusic.volume = 0.2;
         }
 
-        // Pré-carrega todas as imagens da jornada
         const imageSources = CONFIG.journey.map(step => step.image).filter(Boolean);
         await Promise.all(imageSources.map(src => new Promise((resolve) => {
             const img = new Image();
@@ -277,20 +261,23 @@ document.addEventListener('DOMContentLoaded', () => {
             img.onload = img.onerror = resolve;
         })));
 
-        // Define os event listeners
         UI.inputForm.addEventListener('submit', handleFormSubmit);
-        UI.backBtn.addEventListener('click', () => history.back()); // Agora usa a API do navegador
+        UI.backBtn.addEventListener('click', () => history.back());
         UI.audioBtn.addEventListener('click', toggleMusic);
         UI.unmuteVideoBtn.addEventListener('click', unmuteVideo);
         window.addEventListener('popstate', handleBrowserNavigation);
 
-        // Inicia a aplicação na etapa correta (baseado na URL)
-        const initialStep = parseInt(window.location.hash.split('=')[1] - 1, 10) || 0;
-        navigateToStep(initialStep);
+        const hash = window.location.hash;
+        let initialStep = 0;
+        if (hash.startsWith('#etapa=')) {
+            initialStep = parseInt(hash.split('=')[1] - 1, 10) || 0;
+        } else if (hash === '#final') {
+            initialStep = CONFIG.journey.length;
+        }
         
+        navigateToStep(initialStep);
         UI.appContainer.classList.add('is-visible');
 
-        // Autoplay da música com interação do usuário
         document.body.addEventListener('click', () => {
             if (UI.backgroundMusic.paused && !UI.appContainer.classList.contains('is-final-step')) {
                 toggleMusic(true);
@@ -314,6 +301,5 @@ document.addEventListener('DOMContentLoaded', () => {
         UI.unmuteVideoBtn.style.display = 'none';
     }
 
-    // Inicia tudo!
     init();
 });
