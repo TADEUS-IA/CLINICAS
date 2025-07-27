@@ -27,22 +27,18 @@
         <div class="media-container">
             <img id="image-bg-1" class="background-image" src="" alt="Contexto visual da etapa">
             <img id="image-bg-2" class="background-image" src="" alt="Contexto visual da etapa">
-            <video id="final-video" src="" muted playsinline loop preload="metadata" style="display: none;" aria-label="Vídeo final"></video>
+            <video id="final-video" src="" muted playsinline loop style="display: none;" aria-label="Vídeo final"></video>
             <div class="media-overlay"></div>
+            <button id="unmute-video-btn" style="display: none;">Ativar Som</button>
         </div>
+
+        <div id="message-container" class="message-container"></div>
         
-        <div id="content-area">
-            <div id="message-container" class="message-container"></div>
-            <div id="input-area" class="input-area" style="display: none;">
-                <input type="text" id="user-input" autocomplete="off" aria-label="Sua resposta">
-            </div>
-            <div id="options-container" class="options-container"></div>
+        <div id="input-area" class="input-area" style="display: none;">
+            <input type="text" id="user-input" autocomplete="off" aria-label="Sua resposta">
         </div>
 
-        <div id="final-video-controls" style="display: none; z-index: 100;">
-             <button id="unmute-video-btn">Ativar Som</button>
-        </div>
-
+        <div id="options-container" class="options-container"></div>
     </div>
 
     <audio id="background-music" loop></audio> 
