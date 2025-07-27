@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ================== ELEMENTOS DA INTERFACE (UI) ==================
     const ui = {
         interactionContainer: document.getElementById('interaction-container'),
-        contentArea: document.getElementById('content-area'),
         messageContainer: document.getElementById('message-container'),
         optionsContainer: document.getElementById('options-container'),
         inputArea: document.getElementById('input-area'),
@@ -36,17 +35,16 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn: document.getElementById('back-btn'),
         audioBtn: document.getElementById('audio-btn'),
         finalVideo: document.getElementById('final-video'),
-        finalVideoControls: document.getElementById('final-video-controls'),
         unmuteVideoBtn: document.getElementById('unmute-video-btn'),
     };
 
     // ================== ESTADO DA APLICAÇÃO ==================
+    let appState = 'JOURNEY';
     let currentStepIndex = 0;
     let userAnswers = {};
     let isProcessing = false;
     let activeImage = ui.imageBg1;
     let inactiveImage = ui.imageBg2;
-    let musicWasPlaying = false;
 
     // ================== FUNÇÕES PRINCIPAIS ==================
     
@@ -67,38 +65,34 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const renderStep = async () => {
-        if (isProcessing) return;
         if (currentStepIndex >= journey.length) {
             finishJourney();
             return;
         }
         isProcessing = true;
-        
+        appState = 'JOURNEY';
         const currentStep = journey[currentStepIndex];
 
-        // Garante que a UI principal esteja visível
-        ui.contentArea.style.opacity = 1;
+        // CORRIGIDO: Garante que a UI da jornada esteja sempre visível ao renderizar uma etapa
+        ui.messageContainer.style.display = 'block';
+        ui.optionsContainer.style.display = 'flex';
         ui.finalVideo.style.display = 'none';
-        ui.finalVideoControls.style.display = 'none';
-        
-        // Se a música estava tocando, ela volta a tocar ao sair da tela de vídeo
-        if (musicWasPlaying) {
-            ui.backgroundMusic.play().catch(()=>{});
-            musicWasPlaying = false;
-        }
+        ui.unmuteVideoBtn.style.display = 'none';
 
         ui.backBtn.style.display = currentStepIndex > 0 ? 'flex' : 'none';
+        ui.audioBtn.style.display = 'flex';
         
         await updateImage(currentStep.image);
         
         ui.messageContainer.innerHTML = '';
         ui.optionsContainer.innerHTML = '';
         ui.inputArea.style.display = 'none';
+
         const oldSubmitBtn = ui.inputArea.querySelector('.submit-btn');
         if (oldSubmitBtn) oldSubmitBtn.remove();
 
         if (currentStep.type === 'text-input') {
-            ui.inputArea.style.display = 'flex';
+            ui.inputArea.style.display = 'block';
             ui.userInput.value = userAnswers[currentStep.name] || '';
             ui.userInput.classList.remove('error');
             
@@ -110,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitBtn = document.createElement('button');
             submitBtn.textContent = 'Avançar';
             submitBtn.className = 'option-btn submit-btn';
-            submitBtn.onclick = () => handleTextInput();
+            submitBtn.onclick = handleTextInput;
             ui.inputArea.appendChild(submitBtn);
 
         } else if (currentStep.type === 'multiple-choice') {
@@ -124,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        setTimeout(() => isProcessing = false, 500);
+        setTimeout(() => isProcessing = false, 200);
     };
 
     const handleTextInput = () => {
@@ -138,12 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        isProcessing = true;
+        userAnswers[currentStep.name] = answer;
         currentStepIndex++;
         renderStep();
     };
     
     const handleChoice = (option, stepName) => {
         if (isProcessing) return;
+        isProcessing = true;
         userAnswers[stepName] = { text: option.text, value: option.value };
         currentStepIndex++;
         renderStep();
@@ -151,36 +148,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const goBack = () => {
         if (isProcessing) return;
-        if (currentStepIndex > 0) {
+        if (currentStepIndex === 0 && appState !== 'FINISHED') return;
+        isProcessing = true;
+
+        if (appState === 'FINISHED') {
+            // CORRIGIDO: Lógica para voltar da tela de vídeo
+            ui.finalVideo.pause();
+            if (!ui.backgroundMusic.muted) {
+                ui.backgroundMusic.play().catch(()=>{});
+            }
+            // Não deleta a resposta, apenas volta para a última etapa para renderizar
+            currentStepIndex = journey.length - 1;
+        } else {
             currentStepIndex--;
-            renderStep();
         }
+        
+        // Deleta a resposta da etapa para a qual estamos voltando, para que possa ser refeita
+        const previousStep = journey[currentStepIndex];
+        delete userAnswers[previousStep.name];
+        renderStep();
+    };
+
+    const classifyLead = () => {
+        const score = Object.values(userAnswers)
+            .filter(answer => typeof answer === 'object' && typeof answer.value === 'number')
+            .reduce((sum, answer) => sum + answer.value, 0);
+        if (score >= 10) return "Quente";
+        if (score >= 5) return "Morno";
+        return "Frio";
     };
 
     const finishJourney = async () => {
         isProcessing = true;
-        
-        // Pausa a música de fundo ANTES de qualquer outra coisa
-        if (!ui.backgroundMusic.paused) {
-            ui.backgroundMusic.pause();
-            musicWasPlaying = true;
-        }
+        appState = 'FINISHED';
 
-        ui.contentArea.style.opacity = 0;
-        
+        // CORRIGIDO: Pausa a música ANTES de mostrar o vídeo
+        ui.backgroundMusic.pause();
+
+        ui.inputArea.style.display = 'none';
+        ui.messageContainer.style.display = 'none';
+        ui.optionsContainer.style.display = 'none';
+        activeImage.classList.remove('active');
+        inactiveImage.classList.remove('active');
+
         ui.finalVideo.src = finalVideoPath;
         ui.finalVideo.style.display = 'block';
-        ui.finalVideoControls.style.display = 'flex';
         ui.unmuteVideoBtn.style.display = 'block';
-        
-        // Tenta tocar o vídeo mutado (autoplay permitido em mobile)
-        try {
-            await ui.finalVideo.play();
-        } catch(err) {
-            console.warn("Autoplay do vídeo bloqueado, aguardando interação do usuário.", err);
-        }
-
         ui.backBtn.style.display = 'flex';
+        
+        // CORRIGIDO: Garante que o vídeo toque (mutado por padrão)
+        ui.finalVideo.play().catch(error => {
+            console.warn("Autoplay do vídeo foi impedido pelo navegador. Interação do usuário é necessária.", error);
+        });
         
         const payload = {
             nome: userAnswers.nome,
@@ -200,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            console.log('Dados enviados com sucesso!');
+            console.log('Dados enviados com sucesso para o n8n!');
         } catch (error) {
             console.error('Falha ao enviar dados:', error);
         } finally {
@@ -208,17 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // ================== FUNÇÕES AUXILIARES E EVENTOS ==================
-
-    const classifyLead = () => {
-        const score = Object.values(userAnswers)
-            .filter(answer => typeof answer === 'object' && typeof answer.value === 'number')
-            .reduce((sum, answer) => sum + answer.value, 0);
-        if (score >= 10) return "Quente";
-        if (score >= 5) return "Morno";
-        return "Frio";
-    };
-
     const init = async () => {
         if (backgroundMusicPath) {
             ui.backgroundMusic.src = backgroundMusicPath;
@@ -226,9 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const imageSources = journey.map(step => step.image).filter(Boolean);
-        await Promise.all(imageSources.map(src => new Promise((resolve) => {
+        const imagePromises = imageSources.map(src => new Promise((resolve) => {
             const img = new Image(); img.src = src; img.onload = img.onerror = resolve;
-        })));
+        }));
+        await Promise.all(imagePromises);
         
         activeImage.src = journey[0].image;
         await new Promise(resolve => setTimeout(resolve, 10));
@@ -260,13 +269,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     ui.unmuteVideoBtn.addEventListener('click', () => {
         ui.finalVideo.muted = false;
-        // Garante que a música de fundo esteja pausada ao ativar som do vídeo
-        ui.backgroundMusic.pause(); 
         ui.unmuteVideoBtn.style.display = 'none';
     });
 
     document.body.addEventListener('click', () => {
-        if (ui.backgroundMusic.paused && ui.finalVideo.paused) {
+        if (ui.backgroundMusic.paused && appState !== 'FINISHED') {
              ui.backgroundMusic.play().catch(() => {});
              ui.audioBtn.classList.remove('muted');
         }
