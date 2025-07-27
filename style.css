@@ -86,7 +86,7 @@ body {
 .journey-app__final-video {
     width: 100%; height: 100%;
     object-fit: cover;
-    display: none; /* Controlado via JS/classe de estado */
+    display: none; /* Controlado via JS para máxima compatibilidade */
 }
 
 .journey-app__media-overlay {
@@ -147,6 +147,7 @@ body {
     padding: 25px;
     z-index: 5;
     position: relative;
+    transition: opacity var(--transition-speed) ease;
 }
 
 .journey-app__message-container {
@@ -246,7 +247,7 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 20;
-    display: none; /* Controlado via classe de estado */
+    display: none; /* Controlado via JS */
 }
 .journey-app__final-screen button {
     padding: 15px 30px;
@@ -271,20 +272,20 @@ body {
 
 /* Esconde elementos por padrão */
 .journey-app__options-container,
-.journey-app__form,
-.journey-app__final-screen,
-.journey-app .journey-app__final-video {
+.journey-app__form {
     display: none;
 }
+
 /* Mostra elementos com base no estado do app */
 .journey-app.is-choice-step .journey-app__options-container,
-.journey-app.is-input-step .journey-app__form,
-.journey-app.is-final-step .journey-app__final-screen,
-.journey-app.is-final-step .journey-app__final-video {
+.journey-app.is-input-step .journey-app__form {
     display: flex; /* ou block, conforme o caso */
 }
+
+/* Esconde o conteúdo principal na tela final */
 .journey-app.is-final-step .journey-app__content {
-    display: none; /* Esconde conteúdo principal na tela final */
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* ==========================================================================
