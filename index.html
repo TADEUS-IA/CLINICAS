@@ -1,49 +1,54 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jornada de Qualificação Imersiva</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-    <div id="interaction-container" class="interaction-container">
+// Acessa sua chave da API que você guardará de forma segura na Netlify
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+exports.handler = async function (event, context) {
+  // Apenas permite requisições POST
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
+
+  try {
+    const { question } = JSON.parse(event.body);
+
+    if (!question) {
+        return { statusCode: 400, body: JSON.stringify({ error: "Nenhuma pergunta fornecida." }) };
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+    // ✨ IMPORTANTE: Adapte este prompt com informações sobre sua empresa! ✨
+    const prompt = `
+        Você é um assistente virtual especialista nos serviços de automação da empresa "Aprovados Automações".
+        Sua personalidade é prestativa, moderna e profissional.
+        Responda às perguntas dos clientes com base nas seguintes informações sobre a empresa:
+        - Nossos serviços incluem: automação de atendimento com IA, agendamento inteligente com Google Calendar, e criação de agentes de IA para vendas.
+        - Nosso principal diferencial é um agente de IA treinado exclusivamente para o negócio do cliente.
+        - Oferecemos 10 dias de teste grátis.
+        - O contato pode ser feito pelo WhatsApp (11) 91607-2188.
+
+        Se a pergunta não tiver relação com a empresa ou seus serviços, educadamente direcione a conversa de volta para os tópicos de automação e IA.
+
+        Pergunta do cliente: "${question}"
         
-        <button id="back-btn" class="control-button top-left" style="display: none;" aria-label="Voltar">
-            <i class="fas fa-arrow-left"></i>
-        </button>
+        Sua resposta:
+    `;
 
-        <button id="audio-btn" class="control-button top-right" style="display: none;" aria-label="Ativar/Desativar som">
-            <i class="fas fa-volume-high"></i>
-        </button>
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
-        <div class="media-container">
-            <img id="image-bg-1" class="background-image" src="" alt="Contexto visual da etapa">
-            <img id="image-bg-2" class="background-image" src="" alt="Contexto visual da etapa">
-            <video id="final-video" src="" muted playsinline loop style="display: none;" aria-label="Vídeo final"></video>
-            <div class="media-overlay"></div>
-            <button id="unmute-video-btn" style="display: none;">Ativar Som</button>
-        </div>
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ answer: text }),
+    };
 
-        <div id="message-container" class="message-container"></div>
-        
-        <div id="input-area" class="input-area" style="display: none;">
-            <input type="text" id="user-input" autocomplete="off" aria-label="Sua resposta">
-        </div>
-
-        <div id="options-container" class="options-container"></div>
-    </div>
-
-    <audio id="background-music" loop></audio> 
-    
-    <script src="script.js"></script> 
-
-</body>
-</html>
+  } catch (error) {
+    console.error("Erro ao chamar a API do Gemini:", error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Desculpe, não consegui processar sua pergunta no momento." }),
+    };
+  }
+};
